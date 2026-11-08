@@ -6,7 +6,7 @@
 
 A dark Home Assistant theme modelled on the NERV command-centre consoles from *Neon Genesis Evangelion*: black glass, hairline orange vector frames, hexagon grids, phosphor glow, red hazard alerts and "Pattern Blue" readouts.
 
-![NERV MAGI preview]([[images/preview.png](https://raw.githubusercontent.com/CPetrevski/ha-nerv-magi-theme/main/images/preview.png](https://raw.githubusercontent.com/CPetrevski/ha-nerv-magi-theme/main/images/preview.png)))
+![NERV MAGI preview](https://raw.githubusercontent.com/CPetrevski/ha-nerv-magi-theme/main/images/preview.png)
 
 ## Contents
 
