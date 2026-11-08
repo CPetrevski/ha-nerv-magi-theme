@@ -1,0 +1,311 @@
+# NERV MAGI — Home Assistant dark theme modelled on the NERV command-centre
+# consoles: black glass, hairline orange vector frames, hex grids, phosphor
+# glow, red hazard alerts and "Pattern Blue" readouts.
+# Keep file in /config/themes/.
+#
+# Works on its own with plain theme variables. Install card-mod (HACS) to add
+# the console effects: corner brackets, scanlines, boot flicker, striped
+# header and the per-card classes below.
+#
+# Optional fonts: Settings > Dashboards > (three dots) > Resources > Add resource
+# (turn on Advanced Mode in your profile if Resources is hidden)
+#   URL:  https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;700&family=Share+Tech+Mono&family=Shippori+Mincho+B1:wght@800&display=swap
+#   Type: Stylesheet
+# Shippori Mincho B1 stands in for Matisse EB, the Evangelion title-card face.
+#
+# Card classes (card-mod). Add to any card, combine with spaces:
+#   card_mod:
+#     class: alert          # red frame, hazard stripe, pulsing glow
+#     class: caution        # amber frame and hazard stripe
+#     class: pattern-blue   # blue "Angel detected" palette
+#     class: magi           # hexagon-grid panel
+#     class: crt            # scanline + vignette overlay on top (GIFs, cameras)
+#     class: plain          # no console effects
+NERV MAGI:
+  card-mod-theme: "NERV MAGI"
+
+  card-mod-card: |
+    ha-card {
+      --nerv-c: var(--nerv-orange);
+      --nerv-stripe: none;
+      --nerv-pattern: none;
+      background:
+        linear-gradient(var(--nerv-c), var(--nerv-c)) left top / 14px 2px no-repeat border-box,
+        linear-gradient(var(--nerv-c), var(--nerv-c)) left top / 2px 14px no-repeat border-box,
+        linear-gradient(var(--nerv-c), var(--nerv-c)) right top / 14px 2px no-repeat border-box,
+        linear-gradient(var(--nerv-c), var(--nerv-c)) right top / 2px 14px no-repeat border-box,
+        linear-gradient(var(--nerv-c), var(--nerv-c)) left bottom / 14px 2px no-repeat border-box,
+        linear-gradient(var(--nerv-c), var(--nerv-c)) left bottom / 2px 14px no-repeat border-box,
+        linear-gradient(var(--nerv-c), var(--nerv-c)) right bottom / 14px 2px no-repeat border-box,
+        linear-gradient(var(--nerv-c), var(--nerv-c)) right bottom / 2px 14px no-repeat border-box,
+        var(--nerv-stripe) left top / 100% 5px no-repeat border-box,
+        repeating-linear-gradient(180deg, var(--nerv-scanline) 0 1px, transparent 1px 3px),
+        var(--nerv-pattern) 0 0 / 28px 48px repeat,
+        var(--ha-card-background, var(--card-background-color));
+      text-shadow: var(--nerv-text-glow);
+      font-variant-numeric: tabular-nums;
+      animation: nerv-boot 480ms linear;
+    }
+    .card-header {
+      font-family: var(--ha-font-family-heading);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--nerv-c, var(--nerv-orange));
+      background: linear-gradient(90deg, var(--nerv-line), transparent) left bottom / 100% 1px no-repeat;
+    }
+
+    :host(.alert) ha-card, ha-card.alert {
+      --nerv-c: var(--nerv-red);
+      --nerv-stripe: repeating-linear-gradient(-45deg, var(--nerv-red) 0 8px, transparent 8px 16px);
+      --nerv-text-glow: 0 0 6px rgba(255, 46, 46, 0.35);
+      border-color: var(--nerv-red);
+      animation: nerv-alert 1.6s ease-in-out infinite;
+    }
+    :host(.caution) ha-card, ha-card.caution {
+      --nerv-c: var(--nerv-amber);
+      --nerv-stripe: repeating-linear-gradient(-45deg, var(--nerv-amber) 0 8px, transparent 8px 16px);
+      border-color: var(--nerv-amber);
+    }
+    :host(.pattern-blue) ha-card, ha-card.pattern-blue {
+      --nerv-c: var(--nerv-blue);
+      --nerv-scanline: rgba(63, 169, 255, 0.045);
+      --nerv-line: rgba(63, 169, 255, 0.5);
+      --nerv-text-glow: 0 0 6px rgba(63, 169, 255, 0.3);
+      border-color: rgba(63, 169, 255, 0.6);
+      box-shadow: 0 0 16px rgba(63, 169, 255, 0.18);
+    }
+    :host(.magi) ha-card, ha-card.magi {
+      --nerv-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 27.713 48' preserveAspectRatio='none'%3E%3Cpath d='M13.856 0V8L27.713 16V32L13.856 40V48M13.856 8L0 16V32L13.856 40' fill='none' stroke='%23FF7A1A' stroke-opacity='0.16'/%3E%3C/svg%3E");
+    }
+    :host(.magi.pattern-blue) ha-card, ha-card.magi.pattern-blue {
+      --nerv-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 27.713 48' preserveAspectRatio='none'%3E%3Cpath d='M13.856 0V8L27.713 16V32L13.856 40V48M13.856 8L0 16V32L13.856 40' fill='none' stroke='%233FA9FF' stroke-opacity='0.18'/%3E%3C/svg%3E");
+    }
+    :host(.crt) ha-card::after, ha-card.crt::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      border-radius: inherit;
+      background:
+        repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0 1px, transparent 1px 3px),
+        radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.6) 100%);
+    }
+    :host(.plain) ha-card, ha-card.plain {
+      background: var(--ha-card-background, var(--card-background-color));
+      text-shadow: none;
+      animation: none;
+    }
+
+    :host(.type-heading) ha-card {
+      background: none;
+      border: none;
+      box-shadow: none;
+      animation: none;
+    }
+    :host(.type-heading) .content.title {
+      font-family: var(--ha-font-family-heading);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    @keyframes nerv-boot {
+      0% { opacity: 0; }
+      30% { opacity: 1; }
+      45% { opacity: 0.35; }
+      60%, 100% { opacity: 1; }
+    }
+    @keyframes nerv-alert {
+      0%, 100% { box-shadow: 0 0 0 1px rgba(255, 46, 46, 0.25), 0 0 8px rgba(255, 46, 46, 0.2); }
+      50% { box-shadow: 0 0 0 1px rgba(255, 46, 46, 0.9), 0 0 24px rgba(255, 46, 46, 0.55); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      ha-card, :host(.alert) ha-card, ha-card.alert { animation: none; }
+    }
+
+  card-mod-root: |
+    .header {
+      background:
+        linear-gradient(90deg, rgba(255, 122, 26, 0.12), transparent 45%),
+        var(--app-header-background-color);
+    }
+    .header::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -5px;
+      height: 4px;
+      background: repeating-linear-gradient(-45deg, var(--nerv-orange) 0 6px, transparent 6px 12px);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .edit-mode .header::after {
+      background: repeating-linear-gradient(-45deg, var(--nerv-red) 0 6px, transparent 6px 12px);
+      opacity: 0.85;
+    }
+    .main-title {
+      font-family: var(--ha-font-family-heading);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      text-shadow: var(--nerv-text-glow);
+    }
+
+  modes:
+    dark:
+      # Palette
+      nerv-orange: "#FF7A1A"
+      nerv-orange-dim: "#943800"
+      nerv-amber: "#FFB300"
+      nerv-red: "#FF2E2E"
+      nerv-green: "#3DFF7A"
+      nerv-blue: "#3FA9FF"
+      nerv-purple: "#8C5CFF"
+      nerv-panel: "#0F0804"
+      nerv-line: "rgba(255, 122, 26, 0.45)"
+      nerv-scanline: "rgba(255, 122, 26, 0.035)"
+      nerv-text-glow: "0 0 6px rgba(255, 122, 26, 0.28)"
+
+      # Core colours
+      primary-color: "#FF7A1A"
+      dark-primary-color: "#C94A05"
+      light-primary-color: "#FFBC85"
+      accent-color: "#FF2E2E"
+      primary-background-color: "#050302"
+      secondary-background-color: "#0F0804"
+      clear-background-color: "#050302"
+      card-background-color: "#0F0804"
+      primary-text-color: "#FFE6CC"
+      secondary-text-color: "#C98A55"
+      text-primary-color: "#050302"
+      disabled-text-color: "#6B4A33"
+      divider-color: "rgba(255, 122, 26, 0.22)"
+      outline-color: "rgba(255, 122, 26, 0.35)"
+      error-color: "#FF2E2E"
+      warning-color: "#FFB300"
+      success-color: "#3DFF7A"
+      info-color: "#3FA9FF"
+
+      # Dashboard background: orange bloom over a faint hex grid
+      lovelace-background: >-
+        radial-gradient(120% 80% at 50% -10%, rgba(255, 122, 26, 0.12), transparent 60%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 27.713 48' preserveAspectRatio='none'%3E%3Cpath d='M13.856 0V8L27.713 16V32L13.856 40V48M13.856 8L0 16V32L13.856 40' fill='none' stroke='%23FF7A1A' stroke-opacity='0.07'/%3E%3C/svg%3E") 0 0 / 28px 48px repeat,
+        #050302
+
+      # Header
+      app-header-background-color: "#050302"
+      app-header-text-color: "#FF7A1A"
+      app-header-border-bottom: "1px solid #FF7A1A"
+      app-header-selection-bar-color: "#FF7A1A"
+      app-header-edit-background-color: "#3A0606"
+      app-header-edit-text-color: "#FFD6D6"
+      bar-box-shadow: "0 2px 14px rgba(255, 122, 26, 0.18)"
+
+      # Sidebar
+      sidebar-background-color: "#080402"
+      sidebar-text-color: "#C98A55"
+      sidebar-icon-color: "#C98A55"
+      sidebar-selected-background-color: "rgba(255, 122, 26, 0.14)"
+      sidebar-selected-text-color: "#FF7A1A"
+      sidebar-selected-icon-color: "#FF7A1A"
+
+      # Cards (slightly translucent so the hex grid shows through)
+      ha-card-background: "rgba(15, 8, 4, 0.88)"
+      ha-card-border-color: "rgba(255, 122, 26, 0.45)"
+      ha-card-border-width: "1px"
+      ha-card-border-radius: "2px"
+      ha-card-box-shadow: "0 0 14px rgba(255, 122, 26, 0.10)"
+      ha-card-header-color: "#FF7A1A"
+      ha-card-header-font-family: "var(--ha-font-family-heading)"
+      ha-card-header-font-size: "18px"
+      ha-heading-card-title-color: "#FF7A1A"
+      ha-heading-card-subtitle-color: "#C98A55"
+      ha-dialog-border-radius: "2px"
+      mdc-theme-surface: "#0F0804"
+      mdc-theme-on-surface: "#FFE6CC"
+
+      # Angular geometry everywhere (circles kept for avatars/radios)
+      ha-border-radius-sm: "1px"
+      ha-border-radius-md: "2px"
+      ha-border-radius-lg: "2px"
+      ha-border-radius-xl: "3px"
+      ha-border-radius-2xl: "4px"
+      ha-border-radius-3xl: "4px"
+      ha-border-radius-4xl: "4px"
+      ha-border-radius-5xl: "4px"
+      ha-border-radius-6xl: "4px"
+      ha-border-radius-pill: "2px"
+
+      # Typography (falls back cleanly if the fonts aren't loaded)
+      ha-font-family-body: '"Barlow Semi Condensed", "Roboto Condensed", Roboto, Noto, sans-serif'
+      ha-font-family-heading: '"Shippori Mincho B1", "Noto Serif JP", "Times New Roman", serif'
+      ha-font-family-code: '"Share Tech Mono", ui-monospace, monospace'
+
+      # States
+      state-icon-color: "#C98A55"
+      state-inactive-color: "#6B4A33"
+      state-icon-unavailable-color: "#B32020"
+      history-unavailable-color: "#2A1208"
+      history-unknown-color: "#3A2416"
+
+      # Named colours drive tile/domain colours — map them to the NERV palette
+      red-color: "#FF2E2E"
+      deep-orange-color: "#FF5A00"
+      orange-color: "#FF7A1A"
+      amber-color: "#FFB300"
+      yellow-color: "#FFE14D"
+      green-color: "#3DFF7A"
+      light-green-color: "#9CFF57"
+      blue-color: "#3FA9FF"
+      light-blue-color: "#6CC4FF"
+      cyan-color: "#3FE0FF"
+      purple-color: "#8C5CFF"
+      deep-purple-color: "#6A3FD6"
+
+      # Chart series: sync-ratio style readouts
+      color-1: "#FF7A1A"
+      color-2: "#3DFF7A"
+      color-3: "#3FA9FF"
+      color-4: "#FF2E2E"
+      color-5: "#FFB300"
+      color-6: "#8C5CFF"
+      color-7: "#3FE0FF"
+      color-8: "#9CFF57"
+
+      # Inputs
+      input-fill-color: "rgba(255, 122, 26, 0.05)"
+      input-idle-line-color: "rgba(255, 122, 26, 0.45)"
+      input-hover-line-color: "#FF7A1A"
+      input-outlined-idle-border-color: "rgba(255, 122, 26, 0.4)"
+      input-outlined-hover-border-color: "#FF7A1A"
+      input-label-ink-color: "#C98A55"
+
+      # HA 2025+ design tokens. These are hard-coded blue by default and do
+      # not follow primary-color, so buttons/toggles stay blue without them.
+      ha-color-primary-05: "#1A0800"
+      ha-color-primary-10: "#2B0F00"
+      ha-color-primary-20: "#4A1B00"
+      ha-color-primary-30: "#6E2900"
+      ha-color-primary-40: "#943800"
+      ha-color-primary-50: "#C94A05"
+      ha-color-primary-60: "#FF7A1A"
+      ha-color-primary-70: "#FF9A4D"
+      ha-color-primary-80: "#FFBC85"
+      ha-color-primary-90: "#FFDDBF"
+      ha-color-primary-95: "#FFEEDF"
+      ha-color-fill-primary-loud-resting: "#FF7A1A"
+      ha-color-fill-primary-loud-hover: "#FF9A4D"
+      ha-color-fill-primary-loud-active: "#FF7A1A"
+      ha-color-on-primary-loud: "#050302"
+      # Warm-black neutrals for menus, popups and new-style surfaces
+      ha-color-neutral-05: "#140C07"
+      ha-color-neutral-10: "#21140C"
+      ha-color-neutral-20: "#382519"
+      ha-color-neutral-30: "#4D3727"
+      ha-color-neutral-40: "#634936"
+      ha-color-neutral-50: "#7F634E"
+      ha-color-neutral-60: "#9D8169"
+      ha-color-neutral-70: "#B69B83"
+      ha-color-neutral-80: "#D0B8A1"
+      ha-color-neutral-90: "#E9D7C5"
+      ha-color-neutral-95: "#F5ECE2"
