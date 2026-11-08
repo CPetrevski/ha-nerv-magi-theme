@@ -6,6 +6,8 @@
 
 A dark Home Assistant theme modelled on the NERV command-centre consoles from *Neon Genesis Evangelion*: black glass, hairline orange vector frames, hexagon grids, phosphor glow, red hazard alerts and "Pattern Blue" readouts.
 
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=CPetrevski&repository=ha-nerv-magi-theme&category=theme)
+
 ![NERV MAGI preview](https://raw.githubusercontent.com/CPetrevski/ha-nerv-magi-theme/main/images/preview.png)
 
 ## Contents
@@ -44,6 +46,12 @@ A dark Home Assistant theme modelled on the NERV command-centre consoles from *N
 ## Installation
 
 ### Option A: HACS (recommended)
+
+**One click:** select this button, then select **Open link** and **Download** in Home Assistant. Then skip to step 5.
+
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=CPetrevski&repository=ha-nerv-magi-theme&category=theme)
+
+**Or add it by hand:**
 
 1. In Home Assistant, open **HACS**.
 2. Select the **three dots** (top right) → **Custom repositories**.
