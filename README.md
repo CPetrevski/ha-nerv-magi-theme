@@ -29,6 +29,7 @@ A dark Home Assistant theme modelled on the NERV command-centre consoles from *N
 - **Card classes.** Mark any card as `alert`, `caution`, `pattern-blue`, `magi`, `crt` or `plain`.
 - **Evangelion typography.** Optional fonts for the serif title-card headings and terminal-style numbers.
 - **Chart colours.** Graph lines use the NERV palette: orange, green, blue, red, amber and purple.
+- ***Add GIFS*** [gifs](https://github.com/custom-cards/button-card) Add GIFS inside the dash.
 - **Reduced motion.** Animations stop if your device has "reduce motion" turned on.
 
 ## Requirements
