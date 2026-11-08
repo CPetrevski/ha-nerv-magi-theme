@@ -1,0 +1,509 @@
+# NERV MAGI — example dashboard
+#
+# A complete dashboard showing every effect in the theme. To try it:
+#   1. Settings > Dashboards > Add dashboard > New dashboard from scratch.
+#   2. Open it, then pencil (Edit) > three dots > Raw configuration editor.
+#   3. Replace everything with this file and save.
+#   4. Swap the example entity IDs (light.example_light, scene.example_*,
+#      binary_sensor.example_* ...) for your own. Cards whose entities don't
+#      exist show an error until you do.
+#
+# Needs from HACS: card-mod (console effects) and button-card (the three
+# templates below). Everything else is built into Home Assistant.
+
+button_card_templates:
+  # ── nerv_switch ─────────────────────────────────────────────────
+  # Any on/off entity (switch, light, fan, input_boolean ...).
+  # Green = engaged, orange = standby, red hazard stripe = offline.
+  # Tap toggles, hold opens the details dialog.
+  nerv_switch:
+    show_state: false
+    show_label: true
+    variables:
+      tag: ACTUATOR 01
+      mode: |
+        [[[
+          if (!entity || ['unavailable', 'unknown'].includes(entity.state)) return 'lost';
+          return entity.state === 'on' ? 'on' : 'off';
+        ]]]
+      colour: |
+        [[[ return { on: 'var(--nerv-green)', off: 'var(--nerv-orange)', lost: 'var(--nerv-red)' }[variables.mode] ]]]
+    label: |
+      [[[ return `${variables.tag} // ${{ on: 'ENGAGED', off: 'STANDBY', lost: 'SIGNAL LOST' }[variables.mode]}` ]]]
+    custom_fields:
+      kanji: |
+        [[[ return { on: '作動', off: '待機', lost: '断線' }[variables.mode] ]]]
+    tap_action:
+      action: toggle
+      haptic: heavy
+    hold_action:
+      action: more-info
+    extra_styles: |
+      ha-card { transition: filter 120ms linear, box-shadow 200ms linear; }
+      ha-card:hover { filter: brightness(1.3); }
+      @keyframes nerv-engaged { 50% { opacity: 0.55; } }
+    styles:
+      grid:
+        - grid-template-areas: '"n i" "kanji i" "l l"'
+        - grid-template-columns: 1fr auto
+        - grid-template-rows: auto 1fr auto
+      card:
+        - height: 100%
+        - min-height: 150px
+        - padding: 14px 14px 12px 16px
+        - border-radius: 2px
+        - border: 1px solid var(--nerv-line)
+        - border-left: '[[[ return `4px solid ${variables.colour}` ]]]'
+        - '--nerv-c': '[[[ return variables.colour ]]]'
+        - '--nerv-stripe': >-
+            [[[ return variables.mode === 'lost'
+              ? 'repeating-linear-gradient(-45deg, var(--nerv-red) 0 8px, transparent 8px 16px)'
+              : 'none' ]]]
+        - box-shadow: >-
+            [[[ return variables.mode === 'on'
+              ? 'inset 0 -3px 0 var(--nerv-green), 0 0 18px rgba(61, 255, 122, 0.3)'
+              : `inset 0 -3px 0 ${variables.mode === 'lost' ? 'var(--nerv-red)' : 'var(--nerv-orange-dim)'}` ]]]
+      name:
+        - color: '[[[ return variables.mode === "off" ? "var(--nerv-amber)" : variables.colour ]]]'
+        - font-family: var(--ha-font-family-heading)
+        - font-size: 15px
+        - letter-spacing: 0.05em
+        - text-transform: uppercase
+        - justify-self: start
+        - align-self: start
+        - text-align: left
+        - white-space: normal
+      icon:
+        - width: 44px
+        - color: '[[[ return variables.colour ]]]'
+        - filter: '[[[ return `drop-shadow(0 0 6px ${variables.colour})` ]]]'
+      img_cell:
+        - align-self: start
+        - justify-self: end
+      custom_fields:
+        kanji:
+          - justify-self: start
+          - align-self: center
+          - font-family: var(--ha-font-family-heading)
+          - font-size: 44px
+          - font-weight: 800
+          - line-height: 1
+          - color: '[[[ return variables.colour ]]]'
+          - text-shadow: '[[[ return `0 0 12px ${variables.colour}` ]]]'
+          - animation: >-
+              [[[ return variables.mode === 'on' ? 'nerv-engaged 1.6s steps(2, jump-none) infinite' : 'none' ]]]
+      label:
+        - color: '[[[ return variables.mode === "off" ? "var(--secondary-text-color)" : variables.colour ]]]'
+        - font-family: var(--ha-font-family-code)
+        - font-size: 11px
+        - letter-spacing: 0.08em
+        - justify-self: start
+        - white-space: nowrap
+        - padding-top: 6px
+        - border-top: 1px solid var(--nerv-line)
+        - width: 100%
+        - text-align: left
+
+  # ── nerv_program ────────────────────────────────────────────────
+  # Scene launcher. The most recently activated scene in all_scenes
+  # turns green and reads ACTIVE.
+  # List the SAME scenes in both triggers_update and variables.all_scenes.
+  nerv_program:
+    show_icon: false
+    show_state: false
+    show_label: true
+    triggers_update:
+      - scene.example_relax
+      - scene.example_movie
+      - scene.example_bright
+    variables:
+      channel: '00'
+      all_scenes:
+        - scene.example_relax
+        - scene.example_movie
+        - scene.example_bright
+      # A scene's state is the time it last ran; the newest one is ACTIVE.
+      is_live: |
+        [[[
+          const t = (e) => Date.parse(states[e]?.state) || 0;
+          const mine = t(entity.entity_id);
+          return mine > 0 && variables.all_scenes.every((e) => t(e) <= mine);
+        ]]]
+    label: |
+      [[[ return `CH ${variables.channel} // ${variables.is_live ? 'ACTIVE' : 'READY'}` ]]]
+    tap_action:
+      action: perform-action
+      perform_action: scene.turn_on
+      target:
+        entity_id: '[[[ return entity.entity_id ]]]'
+    extra_styles: |
+      ha-card { transition: filter 120ms linear, box-shadow 200ms linear; }
+      ha-card:hover { filter: brightness(1.3); }
+    styles:
+      card:
+        - height: 92px
+        - padding: 10px 8px 10px 12px
+        - border-radius: 2px
+        - border: 1px solid var(--nerv-line)
+        - border-left: 4px solid var(--nerv-c)
+        - '--nerv-c': >-
+            [[[ return variables.is_live ? 'var(--nerv-green)' : 'var(--nerv-orange)' ]]]
+        - box-shadow: >-
+            [[[ return variables.is_live
+              ? 'inset 0 -3px 0 var(--nerv-green), 0 0 16px rgba(61, 255, 122, 0.28)'
+              : 'inset 0 -3px 0 var(--nerv-orange-dim)' ]]]
+      name:
+        - color: >-
+            [[[ return variables.is_live ? 'var(--nerv-green)' : 'var(--nerv-amber)' ]]]
+        - font-family: var(--ha-font-family-heading)
+        - font-size: 13px
+        - letter-spacing: 0.04em
+        - text-transform: uppercase
+        - justify-self: start
+        - text-align: left
+        - white-space: normal
+        - overflow: visible
+      label:
+        - color: >-
+            [[[ return variables.is_live ? 'var(--nerv-green)' : 'var(--secondary-text-color)' ]]]
+        - font-family: var(--ha-font-family-code)
+        - font-size: 10px
+        - letter-spacing: 0.06em
+        - justify-self: start
+        - white-space: nowrap
+        - margin-top: 8px
+
+  # ── nerv_node ───────────────────────────────────────────────────
+  # Server / container status with live CPU and memory readouts.
+  # entity: a status binary_sensor (or any sensor; "available" = online).
+  # variables.cpu / variables.mem: the matching usage sensors (optional).
+  # Add the cpu/mem sensors to triggers_update on each card so it refreshes.
+  nerv_node:
+    show_icon: true
+    show_state: false
+    show_label: true
+    variables:
+      unit: '00'
+      cpu: ''
+      mem: ''
+      online: |
+        [[[
+          if (!entity) return false;
+          if (entity.entity_id.startsWith('binary_sensor.')) return entity.state === 'on';
+          return !['unavailable', 'unknown'].includes(entity.state);
+        ]]]
+      colour: |
+        [[[ return variables.online ? 'var(--nerv-green)' : 'var(--nerv-red)' ]]]
+    label: |
+      [[[ return `UNIT ${variables.unit} // ${variables.online ? 'NOMINAL' : 'SIGNAL LOST'}` ]]]
+    custom_fields:
+      kanji: |
+        [[[ return variables.online ? '稼働' : '停止' ]]]
+      metrics: |
+        [[[
+          const read = (id) => {
+            const s = id && states[id];
+            const v = s ? parseFloat(s.state) : NaN;
+            return isNaN(v) ? null : { v, u: s.attributes.unit_of_measurement || '' };
+          };
+          const fmt = (r) => !r ? '---' : `${r.v.toFixed(1)}${r.u === '%' ? '%' : r.u ? ' ' + r.u : ''}`;
+          const cpu = read(variables.cpu);
+          const mem = read(variables.mem);
+          const pct = cpu ? Math.min(100, Math.max(0, cpu.v)) : 0;
+          const bar = pct > 80 ? 'var(--nerv-red)' : pct > 50 ? 'var(--nerv-amber)' : 'var(--nerv-orange)';
+          return `
+            <div style="display:grid;grid-template-columns:30px 1fr auto;gap:5px 8px;align-items:center">
+              <span style="color:var(--secondary-text-color)">CPU</span>
+              <span style="height:6px;border:1px solid var(--nerv-line);background:linear-gradient(90deg, ${bar} ${pct}%, transparent ${pct}%)"></span>
+              <span>${fmt(cpu)}</span>
+              <span style="color:var(--secondary-text-color)">MEM</span>
+              <span style="height:1px;background:repeating-linear-gradient(90deg, var(--nerv-line) 0 4px, transparent 4px 8px)"></span>
+              <span>${fmt(mem)}</span>
+            </div>`;
+        ]]]
+    tap_action:
+      action: more-info
+    hold_action:
+      action: none
+    extra_styles: |
+      ha-card { transition: filter 120ms linear, box-shadow 200ms linear; }
+      ha-card:hover { filter: brightness(1.3); }
+    styles:
+      grid:
+        - grid-template-areas: '"i n kanji" "i l kanji" "metrics metrics metrics"'
+        - grid-template-columns: 40px 1fr auto
+        - grid-template-rows: auto auto 1fr
+        - column-gap: 10px
+      card:
+        - height: 100%
+        - min-height: 128px
+        - padding: 12px 12px 10px 14px
+        - border-radius: 2px
+        - border: 1px solid var(--nerv-line)
+        - border-left: '[[[ return `4px solid ${variables.colour}` ]]]'
+        - '--nerv-c': '[[[ return variables.colour ]]]'
+        - '--nerv-stripe': >-
+            [[[ return variables.online
+              ? 'none'
+              : 'repeating-linear-gradient(-45deg, var(--nerv-red) 0 8px, transparent 8px 16px)' ]]]
+        - box-shadow: >-
+            [[[ return variables.online
+              ? 'inset 0 -3px 0 var(--nerv-orange-dim)'
+              : 'inset 0 -3px 0 var(--nerv-red), 0 0 16px rgba(255, 46, 46, 0.3)' ]]]
+      img_cell:
+        - align-self: start
+        - justify-self: start
+        - width: 40px
+        - height: 40px
+      icon:
+        - width: 36px
+        - opacity: '[[[ return variables.online ? 1 : 0.45 ]]]'
+        - filter: >-
+            [[[ return variables.online
+              ? 'drop-shadow(0 0 4px rgba(255, 122, 26, 0.5))'
+              : 'grayscale(1) drop-shadow(0 0 4px var(--nerv-red))' ]]]
+      name:
+        - color: '[[[ return variables.online ? "var(--nerv-amber)" : "var(--nerv-red)" ]]]'
+        - font-family: var(--ha-font-family-heading)
+        - font-size: 15px
+        - letter-spacing: 0.05em
+        - text-transform: uppercase
+        - justify-self: start
+        - align-self: end
+        - text-align: left
+        - white-space: normal
+      label:
+        - color: '[[[ return variables.colour ]]]'
+        - font-family: var(--ha-font-family-code)
+        - font-size: 10px
+        - letter-spacing: 0.08em
+        - justify-self: start
+        - align-self: start
+        - white-space: nowrap
+      custom_fields:
+        kanji:
+          - align-self: start
+          - font-family: var(--ha-font-family-heading)
+          - font-size: 22px
+          - font-weight: 800
+          - line-height: 1
+          - writing-mode: vertical-rl
+          - color: '[[[ return variables.colour ]]]'
+          - text-shadow: '[[[ return `0 0 10px ${variables.colour}` ]]]'
+        metrics:
+          - align-self: end
+          - margin-top: 10px
+          - padding-top: 8px
+          - border-top: 1px solid var(--nerv-line)
+          - font-family: var(--ha-font-family-code)
+          - font-size: 11px
+          - letter-spacing: 0.06em
+          - text-align: right
+
+views:
+  - title: NERV HQ
+    path: nerv
+    icon: mdi:hexagon-multiple-outline
+    theme: NERV MAGI
+    type: sections
+    max_columns: 4
+    sections:
+      # ── 00 // MAGI SYSTEM ─────────────────────────────────────────
+      - type: grid
+        cards:
+          - type: heading
+            heading: 00 // MAGI SYSTEM
+            heading_style: title
+            icon: mdi:hexagon-multiple-outline
+
+          # Red alert card, only visible while the door is open.
+          - type: markdown
+            card_mod:
+              class: alert
+            visibility:
+              - condition: state
+                entity: binary_sensor.example_front_door
+                state: 'on'
+            content: |
+              ## EMERGENCY
+              FRONT DOOR // PERIMETER BREACH
+
+          # Amber caution card, only visible while the garage isn't closed.
+          - type: markdown
+            card_mod:
+              class: caution
+            visibility:
+              - condition: state
+                entity: cover.example_garage_door
+                state_not: closed
+            content: |
+              ## CAUTION
+              GARAGE DOOR // {{ states('cover.example_garage_door') | upper }}
+
+          # The three MAGI computers each vote on one check.
+          # 承認 = approved, 否決 = rejected.
+          - type: markdown
+            card_mod:
+              class: magi
+              style:
+                ha-markdown$: |
+                  h4 {
+                    margin: 0 0 8px;
+                    font-family: var(--ha-font-family-code);
+                    font-size: 11px;
+                    font-weight: 400;
+                    letter-spacing: 0.14em;
+                    color: var(--secondary-text-color);
+                  }
+                  table { width: 100%; border-collapse: separate; border-spacing: 6px 0; }
+                  th, td {
+                    border: 1px solid var(--nerv-line);
+                    text-align: center;
+                    padding: 4px 2px;
+                    background: rgba(5, 3, 2, 0.6);
+                  }
+                  th {
+                    border-bottom: none;
+                    font-family: var(--ha-font-family-code);
+                    font-size: 12px;
+                    color: var(--nerv-orange);
+                    letter-spacing: 0.06em;
+                  }
+                  td { border-top: none; font-size: 11px; color: var(--secondary-text-color); }
+                  td strong { font-size: 18px; color: var(--nerv-green); }
+                  td em { font-size: 18px; font-style: normal; color: var(--nerv-red); }
+                  ha-alert { display: block; margin-top: 10px; }
+            content: |
+              {%- set a = is_state('cover.example_garage_door', 'closed') -%}
+              {%- set b = is_state('binary_sensor.example_front_door', 'off') -%}
+              {%- set t = states('sensor.example_temperature') | float(-99) -%}
+              {%- set c = 16 <= t <= 28 -%}
+              #### SECURITY DELIBERATION
+              | MELCHIOR·1 | BALTHASAR·2 | CASPER·3 |
+              |:-:|:-:|:-:|
+              | GARAGE | FRONT DOOR | CLIMATE |
+              | {{ '**承認**' if a else '*否決*' }} | {{ '**承認**' if b else '*否決*' }} | {{ '**承認**' if c else '*否決*' }} |
+
+              {% if a and b and c -%}
+              <ha-alert alert-type="success">UNANIMOUS // ALL SYSTEMS NOMINAL</ha-alert>
+              {%- else -%}
+              <ha-alert alert-type="error">MAGI REJECTION // CHECK SYSTEMS</ha-alert>
+              {%- endif %}
+
+      # ── 01 // CONTROL ─────────────────────────────────────────────
+      - type: grid
+        cards:
+          - type: heading
+            heading: 01 // CONTROL
+            heading_style: title
+            icon: mdi:toggle-switch-outline
+          - type: custom:button-card
+            template: nerv_switch
+            entity: light.example_light
+            name: PRIMARY LIGHTING
+            icon: mdi:ceiling-light
+            variables:
+              tag: ACTUATOR 01
+            grid_options:
+              columns: 6
+              rows: 3
+          - type: custom:button-card
+            template: nerv_switch
+            entity: switch.example_plug
+            name: AUX POWER
+            icon: mdi:power-socket-au
+            variables:
+              tag: ACTUATOR 02
+            grid_options:
+              columns: 6
+              rows: 3
+          - type: heading
+            heading: PROGRAM SELECT
+            heading_style: subtitle
+          - type: grid
+            square: false
+            columns: 3
+            grid_options:
+              columns: 12
+            cards:
+              - type: custom:button-card
+                template: nerv_program
+                entity: scene.example_relax
+                name: 01 // RELAX
+                variables:
+                  channel: '01'
+              - type: custom:button-card
+                template: nerv_program
+                entity: scene.example_movie
+                name: 02 // MOVIE
+                variables:
+                  channel: '02'
+              - type: custom:button-card
+                template: nerv_program
+                entity: scene.example_bright
+                name: 03 // BRIGHT
+                variables:
+                  channel: '03'
+
+      # ── 02 // NODE STATUS ─────────────────────────────────────────
+      - type: grid
+        cards:
+          - type: heading
+            heading: 02 // NODE STATUS
+            heading_style: title
+            icon: mdi:server-network
+          - type: custom:button-card
+            template: nerv_node
+            entity: binary_sensor.example_server_status
+            name: SERVER 01
+            icon: mdi:server
+            variables:
+              unit: '01'
+              cpu: sensor.example_server_cpu
+              mem: sensor.example_server_memory
+            triggers_update:
+              - sensor.example_server_cpu
+              - sensor.example_server_memory
+            grid_options:
+              columns: 6
+          - type: tile
+            entity: sensor.example_temperature
+            name: CORE TEMP
+            grid_options:
+              columns: 6
+          - type: sensor
+            entity: sensor.example_temperature
+            name: CORE TEMP // 24H
+            graph: line
+            hours_to_show: 24
+            card_mod:
+              class: magi
+            grid_options:
+              columns: 6
+          - type: sensor
+            entity: sensor.example_humidity
+            name: HUMIDITY // 24H
+            graph: line
+            hours_to_show: 24
+            card_mod:
+              class: magi pattern-blue
+            grid_options:
+              columns: 6
+
+      # ── 03 // VISUAL FEED ─────────────────────────────────────────
+      - type: grid
+        cards:
+          - type: heading
+            heading: 03 // VISUAL FEED
+            heading_style: title
+            icon: mdi:monitor-eye
+          # Put your own GIF in /config/www/ and it's served from /local/.
+          - type: picture
+            image: /local/nerv/your-animation.gif
+            alt_text: Console animation
+            card_mod:
+              class: crt
+            tap_action:
+              action: none
+            grid_options:
+              columns: 12
