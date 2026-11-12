@@ -191,6 +191,56 @@ NERV MAGI Colour:
       text-shadow: var(--nerv-text-glow);
     }
 
+  # Sidebar (needs card-mod loaded via extra_module_url to apply reliably).
+  # Each block is independent, so delete any you don't like.
+  card-mod-sidebar: |
+    /* Panel: faint hex grid lit by a vertical spectrum that fades to dark,
+       plus a spectrum hairline down the right edge */
+    :host {
+      position: relative;
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 27.713 48' preserveAspectRatio='none'%3E%3Cpath d='M13.86 9.5L26.41 16.75V31.25L13.86 38.5L1.3 31.25V16.75ZM0 -14.5L12.56 -7.25V7.25L0 14.5L-12.56 7.25V-7.25ZM27.71 -14.5L40.27 -7.25V7.25L27.71 14.5L15.16 7.25V-7.25ZM0 33.5L12.56 40.75V55.25L0 62.5L-12.56 55.25V40.75ZM27.71 33.5L40.27 40.75V55.25L27.71 62.5L15.16 55.25V40.75Z' fill='%23080402' fill-opacity='0.95'/%3E%3C/svg%3E") 0 0 / 28px 48px repeat,
+        linear-gradient(90deg, rgba(8, 4, 2, 0.35), rgba(8, 4, 2, 0.85)),
+        linear-gradient(180deg, rgba(150, 40, 150, 0.2) 0%, rgba(225, 35, 45, 0.16) 30%, rgba(255, 110, 25, 0.14) 50%, rgba(190, 210, 60, 0.12) 75%, rgba(60, 200, 110, 0.14) 100%),
+        var(--sidebar-background-color);
+    }
+    :host::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      width: 1px;
+      background: linear-gradient(180deg, #B23AA0, #FF2E2E 30%, #FF7A1A 50%, #C8DC3C 75%, #5CF2A0);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* "Home Assistant" title bar: spectrum underline */
+    .menu {
+      border-bottom: 1px solid transparent;
+      border-image: var(--nerv-spectrum) 1;
+    }
+
+    /* Icons step through the spectrum top to bottom */
+    ha-md-list-item:nth-of-type(6n+1) [slot="start"] { color: #C2569F; }
+    ha-md-list-item:nth-of-type(6n+2) [slot="start"] { color: #E8504A; }
+    ha-md-list-item:nth-of-type(6n+3) [slot="start"] { color: #FF8A3D; }
+    ha-md-list-item:nth-of-type(6n+4) [slot="start"] { color: #FFB84D; }
+    ha-md-list-item:nth-of-type(6n+5) [slot="start"] { color: #C8DC3C; }
+    ha-md-list-item:nth-of-type(6n+6) [slot="start"] { color: #5CF2A0; }
+
+    /* Selected page: orange glow fading right, spectrum bar on the left */
+    ha-md-list-item.selected {
+      background:
+        linear-gradient(180deg, #B23AA0, #FF7A1A, #5CF2A0) left / 3px 100% no-repeat,
+        linear-gradient(90deg, rgba(255, 122, 26, 0.22), transparent 85%);
+    }
+    ha-md-list-item.selected [slot="start"] {
+      color: var(--nerv-orange);
+      filter: drop-shadow(0 0 4px rgba(255, 122, 26, 0.6));
+    }
+
   modes:
     dark:
       # Palette
