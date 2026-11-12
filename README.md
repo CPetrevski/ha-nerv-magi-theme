@@ -33,6 +33,7 @@ A dark Home Assistant theme modelled on the NERV command-centre consoles from *N
 - **Chart colours.** Graph lines use the NERV palette: orange, green, blue, red, amber and purple.
 - ***Add GIFS*** [gifs](https://github.com/custom-cards/button-card) Add GIFS inside the dash.
 - **Reduced motion.** Animations stop if your device has "reduce motion" turned on.
+- **NERV MAGI Colour variant.** A second theme in the same download. Dark hexagon cells glow with a purple → red → orange → yellow-green → green gradient, and the palette adds MAGI mint, lime, magenta and pale blue. See [NERV MAGI Colour](#nerv-magi-colour).
 
 ## Requirements
 
@@ -112,6 +113,19 @@ data:
 ```
 
 > NERV MAGI is a dark-only theme, so it always shows in dark mode.
+
+### NERV MAGI Colour
+
+[`themes/nerv_magi_colour.yaml`](themes/nerv_magi_colour.yaml) installs alongside the original. To use it, choose **NERV MAGI Colour** in any of the steps above. Everything else is the same, including the console effects, fonts and card classes, plus four extra classes:
+
+| Class | Look |
+|---|---|
+| `spectrum` | Multicolour frame and top stripe |
+| `green` | MAGI mint frame (the CASPER / MELCHIOR panels) |
+| `purple` | Magenta frame |
+| `lime` | Yellow-green frame |
+
+In this theme the `magi` class shows the colour spectrum through the hexagon cells. The header hazard stripe also runs through the full spectrum.
 
 ## Turn on the console effects (card-mod)
 
