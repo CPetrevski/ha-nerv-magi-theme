@@ -229,11 +229,15 @@ NERV MAGI Colour:
       success-color: "#5CF2A0"
       info-color: "#3FA9FF"
 
-      # Dashboard background: dark hexagon cells with the colour spectrum
-      # glowing through the gaps (purple top -> red -> orange -> lime -> green)
+      # Dashboard background: dark hexagon cells with a faint colour spectrum
+      # glowing through the gaps. The spectrum runs left to right (purple ->
+      # red -> orange -> lime -> green) and fades into darkness down the page.
+      # Brightness: raise/lower the alpha in the spectrum layer (0.2 / 0.18).
+      # Fade: the middle layer; move the 70% stop up for a quicker fade.
       lovelace-background: >-
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 27.713 48' preserveAspectRatio='none'%3E%3Cpath d='M13.86 9.5L26.41 16.75V31.25L13.86 38.5L1.3 31.25V16.75ZM0 -14.5L12.56 -7.25V7.25L0 14.5L-12.56 7.25V-7.25ZM27.71 -14.5L40.27 -7.25V7.25L27.71 14.5L15.16 7.25V-7.25ZM0 33.5L12.56 40.75V55.25L0 62.5L-12.56 55.25V40.75ZM27.71 33.5L40.27 40.75V55.25L27.71 62.5L15.16 55.25V40.75Z' fill='%23050302' fill-opacity='0.9'/%3E%3C/svg%3E") 0 0 / 28px 48px repeat,
-        linear-gradient(165deg, rgba(150, 40, 150, 0.6) 0%, rgba(225, 35, 45, 0.55) 28%, rgba(255, 110, 25, 0.45) 44%, rgba(190, 210, 60, 0.45) 62%, rgba(60, 200, 110, 0.45) 82%, rgba(30, 110, 90, 0.4) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 27.713 48' preserveAspectRatio='none'%3E%3Cpath d='M13.86 9.5L26.41 16.75V31.25L13.86 38.5L1.3 31.25V16.75ZM0 -14.5L12.56 -7.25V7.25L0 14.5L-12.56 7.25V-7.25ZM27.71 -14.5L40.27 -7.25V7.25L27.71 14.5L15.16 7.25V-7.25ZM0 33.5L12.56 40.75V55.25L0 62.5L-12.56 55.25V40.75ZM27.71 33.5L40.27 40.75V55.25L27.71 62.5L15.16 55.25V40.75Z' fill='%23050302' fill-opacity='0.95'/%3E%3C/svg%3E") 0 0 / 28px 48px repeat,
+        linear-gradient(180deg, rgba(5, 3, 2, 0) 0%, rgba(5, 3, 2, 0.55) 35%, rgba(5, 3, 2, 0.8) 70%, rgba(5, 3, 2, 0.88) 100%),
+        linear-gradient(100deg, rgba(150, 40, 150, 0.2) 0%, rgba(225, 35, 45, 0.18) 25%, rgba(255, 110, 25, 0.18) 45%, rgba(190, 210, 60, 0.16) 70%, rgba(60, 200, 110, 0.18) 100%),
         #050302
 
       # Header
